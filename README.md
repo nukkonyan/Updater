@@ -7,3 +7,5 @@ The original AlliedModders thread: https://forums.alliedmods.net/showthread.php?
 ## About this Fork
 
 This fork is made to 'continue' the support for the plugin, keeping it up-to-date.
+
+All credits goes to GOD-Tony for originally creating Updater.
