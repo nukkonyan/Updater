@@ -114,7 +114,7 @@ public void OnPluginStart()	{
 	
 #if !defined DEBUG
 	// Add this plugin to the autoupdater.
-	// Updater_AddPlugin(GetMyHandle(), UPDATE_URL);
+	Updater_AddPlugin(GetMyHandle(), UPDATE_URL);
 #endif
 
 	// Check for updates every 24 hours.
