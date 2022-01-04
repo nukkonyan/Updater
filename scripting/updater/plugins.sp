@@ -101,7 +101,7 @@ void Updater_QueueRemovePlugin(Handle plugin)	{
 
 void Updater_RemovePlugin(int index)	{
 	/* Warning: Removing a plugin will shift indexes. */
-	delete (Updater_GetFiles(index)); // hFiles
+	delete Updater_GetFiles(index); // hFiles
 	delete view_as<DataPack>(g_hPluginPacks.Get(index)); // hPluginPack
 	g_hPluginPacks.Erase(index);
 }

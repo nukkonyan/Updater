@@ -142,7 +142,7 @@ Action Timer_CheckUpdates(Handle timer)	{
 }
 
 Action Command_ForceCheck(int client, int args)	{
-	ReplyToCommand(client, "[Updater] Force-Checking for updates.");
+	ReplyToCommand(client, "[Updater] Force-Checking for updates. (Be aware plugin indexes changes after the plugin is reloaded, errors are very possible.)");
 	CreateTimer(0.1, Timer_CheckUpdates);
 }
 
@@ -152,7 +152,7 @@ Action Command_Check(int client, int args)	{
 	switch(fNextUpdate > GetTickedTime())	{
 		case	true:	ReplyToCommand(client, "[Updater] Updates can only be checked once per hour. %.1f minutes remaining.", (fNextUpdate - GetTickedTime()) / 60.0);
 		case	false:	{
-			ReplyToCommand(client, "[Updater] Checking for updates.");
+			ReplyToCommand(client, "[Updater] Checking for updates. (Be aware plugin indexes changes after the plugin is reloaded, errors are very possible.)");
 			TriggerTimer(_hUpdateTimer, true);
 		}
 	}
