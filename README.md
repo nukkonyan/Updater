@@ -14,6 +14,6 @@ SteamWorks (Recommended.)
 
 ## About this Fork
 
-This fork is made to 'continue' the support for the plugin, keeping it up-to-date.
+This fork is made to 'continue' the support for the plugin, keeping it up-to-date since the author hasn't been active much and plugin hasn't been updated in a long while.
 
 All credits goes to GOD-Tony for originally creating Updater.
