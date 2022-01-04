@@ -9,7 +9,7 @@ The original AlliedModders thread: https://forums.alliedmods.net/showthread.php?
 cURL (Dropped support on 1.3.0)
 Socket
 SteamTools (Dropped support 1.3.0)
-SteamWorks (Recommended.)
+SteamWorks (Recommended)
 ```
 
 ## Cvars
