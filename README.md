@@ -20,6 +20,14 @@ sm_updater <1|2|3> - Determines update functionality.
    3 = Include the source code with updates.
 ```
 
+## Commands
+```
+sm_updater_check - Forces Updater to check all plugins for updates. Can only be run once per hour.
+sm_updater_forcecheck - Forces Updater to check all plugins for updates. This has no limits (Be aware of errors.)
+sm_updater_status - View the status of Updater.
+
+```
+
 
 ## About this Fork
 
