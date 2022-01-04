@@ -10,7 +10,7 @@
 		"Notes"	"More info @ https://github.com/Teamkiller324/Updater"
 		"Notes"	"Updated to new Syntax throughout."
 		"Notes"	"Removed SteamTools Support due to it being superceeded by SteamWorks and broken."
-		"Notes"	"Removes cURL Support due to it being very old and not supported."
+		"Notes"	"Removed cURL Support due to it being very old and not supported."
 		"Notes"	"Added Force-Check Command (sm_updater_forcecheck)."
 		"Notes"	"Updated the command descriptions."
 		"Notes"	"Minor code 'cleanup'."
