@@ -4,6 +4,8 @@ Updater is originally made by GOD-Tony, as a tool to make the plugins easier tha
 
 The original AlliedModders thread: https://forums.alliedmods.net/showthread.php?p=1570806
 
+### Latest Version: 1.3.0
+
 ## Requirements
 ```
 cURL (Dropped support on 1.3.0)
