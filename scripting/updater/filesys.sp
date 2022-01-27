@@ -24,28 +24,6 @@ void PrefixURL(char[] buffer, int maxlength, const char[] url)	{
 	}
 }
 
-// Split URL into hostname, location, and filename. No trailing slashes.
-void ParseURL(const char[] url, char[] host, int maxHost, char[] location, int maxLoc, char[] filename, int maxName)	{
-	// Strip url prefix.
-	int idx = StrContains(url, "://");
-	idx = (idx != -1) ? idx + 3 : 0;
-	
-	char dirs[16][64];
-	int total = ExplodeString(url[idx], "/", dirs, sizeof(dirs), sizeof(dirs[]));
-	
-	// host
-	Format(host, maxHost, "%s", dirs[0]);
-	
-	// location
-	location[0] = '\0';
-	for(int i = 1; i < total - 1; i++)	{
-		Format(location, maxLoc, "%s/%s", location, dirs[i]);
-	}
-	
-	// filename
-	Format(filename, maxName, "%s", dirs[total-1]);
-}
-
 // Converts Updater SMC file paths into paths relative to the game folder.
 void ParseSMCPathForLocal(const char[] path, char[] buffer, int maxlength)	{
 	char dirs[16][64];

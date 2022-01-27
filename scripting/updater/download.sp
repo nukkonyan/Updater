@@ -1,7 +1,6 @@
 
 /* Download Manager */
 
-#include "updater/download_socket.sp"
 #include "updater/download_steamworks.sp"
 
 static DataPackPos QueuePack_URL;
@@ -54,7 +53,7 @@ void ProcessDownloadQueue(bool force=false)	{
 	hQueuePack.ReadString(url, sizeof(url));
 	hQueuePack.ReadString(dest, sizeof(dest));
 	
-	if (!SOCKET_AVAILABLE() && !STEAMWORKS_AVAILABLE())
+	if (!STEAMWORKS_AVAILABLE())
 		SetFailState(EXTENSION_ERROR);
 	
 #if defined DEBUG
@@ -71,8 +70,6 @@ void ProcessDownloadQueue(bool force=false)	{
 		else
 			CreateTimer(10.0, Timer_RetryQueue);
 	}
-	else if(SOCKET_AVAILABLE())
-		Download_Socket(url, dest);
 }
 
 Action Timer_RetryQueue(Handle timer)	{

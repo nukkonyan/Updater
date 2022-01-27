@@ -9,7 +9,7 @@
 
 /* Plugin Info */
 #define PLUGIN_NAME 		"Updater"
-#define PLUGIN_VERSION 		"1.3.0"
+#define PLUGIN_VERSION 		"1.3.1"
 
 /*	Version 1.3.0:
  *
@@ -20,6 +20,11 @@
  *	Updated the command descriptions.
  *	Minor code 'cleanup'.
  *	Added support for 'Include' files.
+ */
+ 
+/*	Version 1.3.1:
+ *
+ *	Removed Socket support since it has no HTTPS Support (Thanks Dr. McKay).
  */
 
 public Plugin myinfo = {
@@ -33,7 +38,6 @@ public Plugin myinfo = {
 /* Globals */
 //#define DEBUG		// This will enable verbose logging. Useful for developers testing their updates.
 
-#define SOCKET_AVAILABLE()		(GetFeatureStatus(FeatureType_Native, "SocketCreate") == FeatureStatus_Available)
 #define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_WriteHTTPResponseBodyToFile") == FeatureStatus_Available)
 
 #define EXTENSION_ERROR		"This plugin requires one of the Socket or SteamWorks extensions to function."
@@ -68,14 +72,7 @@ static char _sDataPath[PLATFORM_MAX_PATH];
 #include "updater/api.sp"
 
 /* Plugin Functions */
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)	{
-	// Socket
-	MarkNativeAsOptional("SocketCreate");
-	MarkNativeAsOptional("SocketSetArg");
-	MarkNativeAsOptional("SocketSetOption");
-	MarkNativeAsOptional("SocketConnect");
-	MarkNativeAsOptional("SocketSend");
-	
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)	{	
 	API_Init();
 	RegPluginLibrary("updater");
 	
@@ -83,7 +80,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 }
 
 public void OnPluginStart()	{
-	if (!SOCKET_AVAILABLE() && !STEAMWORKS_AVAILABLE())
+	if (!STEAMWORKS_AVAILABLE())
 		SetFailState(EXTENSION_ERROR);
 	
 	LoadTranslations("common.phrases");
