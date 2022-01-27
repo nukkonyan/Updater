@@ -6,7 +6,7 @@ The original AlliedModders thread: https://forums.alliedmods.net/showthread.php?
 
 ### Latest Version: 1.3.1
 
-``Requires SteamWorks extension``
+Requires [SteamWorks](http://users.alliedmods.net/~kyles/builds/SteamWorks/) extension
 
 ## Cvars
 ```
