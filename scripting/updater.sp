@@ -2,10 +2,7 @@
 #pragma newdecls required
 
 /* SM Includes */
-#undef REQUIRE_EXTENSIONS
-#tryinclude <socket>
-#tryinclude <SteamWorks>
-#define REQUIRE_EXTENSIONS
+#include <SteamWorks>
 
 /* Plugin Info */
 #define PLUGIN_NAME 		"Updater"
@@ -38,9 +35,6 @@ public Plugin myinfo = {
 /* Globals */
 //#define DEBUG		// This will enable verbose logging. Useful for developers testing their updates.
 
-#define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_WriteHTTPResponseBodyToFile") == FeatureStatus_Available)
-
-#define EXTENSION_ERROR		"This plugin requires one of the Socket or SteamWorks extensions to function."
 #define TEMP_FILE_EXT		"temp"		// All files are downloaded with this extension first.
 #define MAX_URL_LENGTH		256
 
@@ -80,9 +74,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 }
 
 public void OnPluginStart()	{
-	if (!STEAMWORKS_AVAILABLE())
-		SetFailState(EXTENSION_ERROR);
-	
 	LoadTranslations("common.phrases");
 	
 	// Convars.

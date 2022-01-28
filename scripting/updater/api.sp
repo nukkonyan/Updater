@@ -1,4 +1,3 @@
-
 /* API - Natives & Forwards */
 
 static PrivateForward fwd_OnPluginChecking;

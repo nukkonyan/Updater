@@ -1,4 +1,3 @@
-
 /* Download Manager */
 
 static DataPackPos QueuePack_URL;
@@ -51,9 +50,6 @@ void ProcessDownloadQueue(bool force=false)	{
 	hQueuePack.ReadString(url, sizeof(url));
 	hQueuePack.ReadString(dest, sizeof(dest));
 	
-	if (!STEAMWORKS_AVAILABLE())
-		SetFailState(EXTENSION_ERROR);
-	
 #if defined DEBUG
 	Updater_DebugLog("Download started:");
 	Updater_DebugLog("  [0]  URL: %s", url);
@@ -62,11 +58,9 @@ void ProcessDownloadQueue(bool force=false)	{
 	
 	g_bDownloading = true;
 	
-	if(STEAMWORKS_AVAILABLE())	{
-		if(SteamWorks_IsLoaded())
-			Download_SteamWorks(url, dest);
-		else
-			CreateTimer(10.0, Timer_RetryQueue);
+	switch(SteamWorks_IsLoaded())	{
+		case true: Download_SteamWorks(url, dest);
+		case false: CreateTimer(10.0, Timer_RetryQueue);
 	}
 }
 
