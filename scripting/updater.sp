@@ -77,15 +77,8 @@ public void OnPluginStart()	{
 	LoadTranslations("common.phrases");
 	
 	// Convars.
-	ConVar hCvar = null;
-	
-	hCvar = CreateConVar("sm_updater_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD);
-	OnVersionChanged(hCvar, "", "");
-	hCvar.AddChangeHook(OnVersionChanged);
-	
-	hCvar = CreateConVar("sm_updater", "2", "Determines update functionality. (1 = Notify, 2 = Download, 3 = Include source code)", _, true, 1.0, true, 3.0);
-	OnSettingsChanged(hCvar, "", "");
-	hCvar.AddChangeHook(OnSettingsChanged);
+	CreateConVar("sm_updater_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD).AddChangeHook(OnVersionChanged);
+	CreateConVar("sm_updater", "2", "Determines update functionality. (1 = Notify, 2 = Download, 3 = Include source code)", _, true, 1.0, true, 3.0).AddChangeHook(OnSettingsChanged);
 	
 	// Commands.
 	RegAdminCmd("sm_updater_check", Command_Check, ADMFLAG_RCON, "Updater - Forces Updater to check for updates.");
