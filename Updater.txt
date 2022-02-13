@@ -4,11 +4,11 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.3.1"
+			"Latest"	"1.3.2"
 		}
 		
 		"Notes"	"More info @ https://github.com/Teamkiller324/Updater"
-		"Notes"	"Removed Socket support since it has no HTTPS Support (Thanks Dr. McKay)."
+		"Notes"	"Redone the code fixing issues."
 	}
 	
 	"Files"
@@ -20,8 +20,6 @@
 			"Source"	"Path_SM/scripting/updater.sp"
 			"Source"	"Path_SM/scripting/updater/api.sp"
 			"Source"	"Path_SM/scripting/updater/download.sp"
-			"Source"	"Path_SM/scripting/updater/download_socket.sp"
-			"Source"	"Path_SM/scripting/updater/download_steamworks.sp"
 			"Source"	"Path_SM/scripting/updater/filesus.sp"
 			"Source"	"Path_SM/scripting/updater/plugins.sp"
 			
@@ -33,8 +31,6 @@
 		"Source"	"Path_SM/scripting/updater.sp"
 		"Source"	"Path_SM/scripting/updater/api.sp"
 		"Source"	"Path_SM/scripting/updater/download.sp"
-		"Source"	"Path_SM/scripting/updater/download_socket.sp"
-		"Source"	"Path_SM/scripting/updater/download_steamworks.sp"
 		"Source"	"Path_SM/scripting/updater/filesus.sp"
 		"Source"	"Path_SM/scripting/updater/plugins.sp"
 		

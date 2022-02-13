@@ -16,7 +16,7 @@ bool IsValidPlugin(Handle plugin)	{
 	bool bIsValid = false;
 	
 	while(MorePlugins(hIterator))	{
-		if (plugin == ReadPlugin(hIterator))	{
+		if(plugin == ReadPlugin(hIterator))	{
 			bIsValid = true;
 			break;
 		}
@@ -34,7 +34,7 @@ int PluginToIndex(Handle plugin)	{
 		hPluginPack = g_hPluginPacks.Get(i);
 		hPluginPack.Position = PluginPack_Plugin;
 		
-		if(plugin == hPluginPack.ReadCell())
+		if(plugin == view_as<Handle>(hPluginPack.ReadCell()))
 			return i;
 	}
 	
@@ -42,21 +42,20 @@ int PluginToIndex(Handle plugin)	{
 }
 
 Handle IndexToPlugin(int index)	{
-	DataPack hPluginPack = g_hPluginPacks.Get(index);
+	DataPack hPluginPack = view_as<DataPack>(g_hPluginPacks.Get(index));
 	hPluginPack.Position = PluginPack_Plugin;
-	return hPluginPack.ReadCell();
+	return view_as<Handle>(hPluginPack.ReadCell());
 }
 
 void Updater_AddPlugin(Handle plugin, const char[] url)	{
 	int index = PluginToIndex(plugin);
 	
 	switch(index != -1)	{
-		case	true:	{
+		case true:	{
 			// Remove plugin from removal queue.
 			int maxPlugins = g_hRemoveQueue.Length;
 			for(int i = 0; i < maxPlugins; i++)	{
-				if (plugin == g_hRemoveQueue.Get(i))
-				{
+				if(plugin == g_hRemoveQueue.Get(i))	{
 					g_hRemoveQueue.Erase(i);
 					break;
 				}
@@ -65,18 +64,18 @@ void Updater_AddPlugin(Handle plugin, const char[] url)	{
 			// Update the url.
 			Updater_SetURL(index, url);
 		}
-		case	false:	{
+		case false:	{
 			DataPack hPluginPack = new DataPack();
 			ArrayList hFiles = new ArrayList(PLATFORM_MAX_PATH);
 			
 			PluginPack_Plugin = hPluginPack.Position;
-			hPluginPack.WriteCell(plugin);
+			hPluginPack.WriteCell(view_as<int>(plugin));
 			
 			PluginPack_Files = hPluginPack.Position;
-			hPluginPack.WriteCell(hFiles);
+			hPluginPack.WriteCell(view_as<int>(hFiles));
 			
 			PluginPack_Status = hPluginPack.Position;
-			hPluginPack.WriteCell(Status_Idle);
+			hPluginPack.WriteCell(view_as<int>(Status_Idle));
 			
 			PluginPack_URL = hPluginPack.Position;
 			hPluginPack.WriteString(url);
@@ -91,7 +90,7 @@ void Updater_QueueRemovePlugin(Handle plugin)	{
 	int maxPlugins = g_hRemoveQueue.Length;
 	for(int i = 0; i < maxPlugins; i++)	{
 		// Make sure it wasn't previously flagged.
-		if (plugin == g_hRemoveQueue.Get(i))
+		if(plugin == g_hRemoveQueue.Get(i))
 			return;
 	}
 	
@@ -101,27 +100,27 @@ void Updater_QueueRemovePlugin(Handle plugin)	{
 
 void Updater_RemovePlugin(int index)	{
 	/* Warning: Removing a plugin will shift indexes. */
-	delete Updater_GetFiles(index); // hFiles
-	delete view_as<DataPack>(g_hPluginPacks.Get(index)); // hPluginPack
+	CloseHandle(Updater_GetFiles(index)); // hFiles
+	CloseHandle(GetArrayCell(g_hPluginPacks, index)); // hPluginPack
 	g_hPluginPacks.Erase(index);
 }
 
-ArrayList Updater_GetFiles(int index)	{
+Handle Updater_GetFiles(int index)	{
 	DataPack hPluginPack = g_hPluginPacks.Get(index);
 	hPluginPack.Position = PluginPack_Files;
-	return hPluginPack.ReadCell();
+	return view_as<Handle>(hPluginPack.ReadCell());
 }
 
 UpdateStatus Updater_GetStatus(int index)	{
 	DataPack hPluginPack = g_hPluginPacks.Get(index);
 	hPluginPack.Position = PluginPack_Status;
-	return hPluginPack.ReadCell();
+	return view_as<UpdateStatus>(hPluginPack.ReadCell());
 }
 
 void Updater_SetStatus(int index, UpdateStatus status)	{
 	DataPack hPluginPack = g_hPluginPacks.Get(index);
 	hPluginPack.Position = PluginPack_Status;
-	hPluginPack.WriteCell(status);
+	hPluginPack.WriteCell(view_as<int>(status));
 }
 
 void Updater_GetURL(int index, char[] buffer, int size)	{

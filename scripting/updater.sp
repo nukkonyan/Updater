@@ -2,11 +2,12 @@
 #pragma newdecls required
 
 /* SM Includes */
+#define REQUIRE_EXTENSIONS
 #include <SteamWorks>
 
 /* Plugin Info */
 #define PLUGIN_NAME 		"Updater"
-#define PLUGIN_VERSION 		"1.3.1"
+#define PLUGIN_VERSION 		"1.3.2"
 
 /*	Version 1.3.0:
  *
@@ -24,21 +25,18 @@
  *	Removed Socket support since it has no HTTPS Support (Thanks Dr. McKay).
  */
 
+/*	Version 1.3.2:
+ *
+ *	Redone the code.
+ */
+
 public Plugin myinfo = {
-	name = PLUGIN_NAME,
-	author = "GoD-Tony, Tk /id/Teamkiller324",
-	description = "Automatically updates SourceMod plugins and files",
-	version = PLUGIN_VERSION,
-	url = "http://forums.alliedmods.net/showthread.php?t=169095"
+	name		= PLUGIN_NAME,
+	author		= "GoD-Tony, Tk /id/Teamkiller324",
+	description	= "Automatically updates SourceMod plugins and files",
+	version		= PLUGIN_VERSION,
+	url			= "http://forums.alliedmods.net/showthread.php?t=169095"
 }
-
-/* Globals */
-//#define DEBUG		// This will enable verbose logging. Useful for developers testing their updates.
-
-#define TEMP_FILE_EXT		"temp"		// All files are downloaded with this extension first.
-#define MAX_URL_LENGTH		256
-
-#define UPDATE_URL			"https://raw.githubusercontent.com/Teamkiller324/Updater/main/Updater.txt" // Updated.
 
 enum UpdateStatus {
 	Status_Idle,		
@@ -47,6 +45,15 @@ enum UpdateStatus {
 	Status_Updated,			// Update is complete.
 	Status_Error,			// An error occured while downloading.
 }
+
+/* Globals */
+//#define DEBUG		// This will enable verbose logging. Useful for developers testing their updates.
+
+#define STEAMWORKS_AVAILABLE()	(GetFeatureStatus(FeatureType_Native, "SteamWorks_WriteHTTPResponseBodyToFile") == FeatureStatus_Available)
+#define EXTENSION_ERROR			"This plugin requires SteamWorks extensions to function."
+#define TEMP_FILE_EXT			"temp"		// All files are downloaded with this extension first.
+#define MAX_URL_LENGTH			256
+#define UPDATE_URL				"https://raw.githubusercontent.com/Teamkiller324/Updater/main/Updater.txt"
 
 bool g_bGetDownload, g_bGetSource;
 
@@ -66,24 +73,31 @@ static char _sDataPath[PLATFORM_MAX_PATH];
 #include "updater/api.sp"
 
 /* Plugin Functions */
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)	{	
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)	{
 	API_Init();
 	RegPluginLibrary("updater");
-	
 	return APLRes_Success;
 }
 
 public void OnPluginStart()	{
+	if(!STEAMWORKS_AVAILABLE())
+		SetFailState(EXTENSION_ERROR);
+	
 	LoadTranslations("common.phrases");
 	
 	// Convars.
-	CreateConVar("sm_updater_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD).AddChangeHook(OnVersionChanged);
-	CreateConVar("sm_updater", "2", "Determines update functionality. (1 = Notify, 2 = Download, 3 = Include source code)", _, true, 1.0, true, 3.0).AddChangeHook(OnSettingsChanged);
+	ConVar hCvar = null;
+	
+	(hCvar = CreateConVar("sm_updater_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD)).AddChangeHook(OnVersionChanged);
+	OnVersionChanged(hCvar, "", "");
+	
+	(hCvar = CreateConVar("sm_updater", "2", "Determines update functionality. (1 = Notify, 2 = Download, 3 = Include source code)", _, true, 1.0, true, 3.0)).AddChangeHook(OnSettingsChanged);
+	OnSettingsChanged(hCvar, "", "");
 	
 	// Commands.
 	RegAdminCmd("sm_updater_check", Command_Check, ADMFLAG_RCON, "Updater - Forces Updater to check for updates.");
-	RegAdminCmd("sm_updater_forcecheck", Command_ForceCheck, ADMFLAG_RCON, "Updater - Forces Updater to check for updates without limits.");
-	RegAdminCmd("sm_updater_status", Command_Status, ADMFLAG_RCON, "View the status of Updater.");
+	RegAdminCmd("sm_updater_forcecheck", Command_ForceCheck, ADMFLAG_RCON, "Updater - Forces updater to check for updates without limits");
+	RegAdminCmd("sm_updater_status", Command_Status, ADMFLAG_RCON, "Updater - View the status of Updater.");
 	
 	// Initialize arrays.
 	g_hPluginPacks = new ArrayList();
@@ -93,10 +107,10 @@ public void OnPluginStart()	{
 	// Temp path for checking update files.
 	BuildPath(Path_SM, _sDataPath, sizeof(_sDataPath), "data/updater.txt");
 	
-#if !defined DEBUG
+	#if !defined DEBUG
 	// Add this plugin to the autoupdater.
 	Updater_AddPlugin(GetMyHandle(), UPDATE_URL);
-#endif
+	#endif
 
 	// Check for updates every 24 hours.
 	_hUpdateTimer = CreateTimer(86400.0, Timer_CheckUpdates, _, TIMER_REPEAT);
@@ -113,7 +127,7 @@ Action Timer_CheckUpdates(Handle timer)	{
 	// Update everything!
 	int maxPlugins = GetMaxPlugins();
 	for(int i = 0; i < maxPlugins; i++)	{		
-		if (Updater_GetStatus(i) == Status_Idle)
+		if(Updater_GetStatus(i) == Status_Idle)
 			Updater_Check(i);
 	}
 	
@@ -122,22 +136,24 @@ Action Timer_CheckUpdates(Handle timer)	{
 	return Plugin_Continue;
 }
 
-Action Command_ForceCheck(int client, int args)	{
-	ReplyToCommand(client, "[Updater] Force-Checking for updates. (Be aware plugin indexes changes after the plugin is reloaded, errors are very possible.)");
-	CreateTimer(0.1, Timer_CheckUpdates);
-}
-
 Action Command_Check(int client, int args)	{
 	float fNextUpdate = _fLastUpdate + 3600.0;
 	
 	switch(fNextUpdate > GetTickedTime())	{
-		case	true:	ReplyToCommand(client, "[Updater] Updates can only be checked once per hour. %.1f minutes remaining.", (fNextUpdate - GetTickedTime()) / 60.0);
-		case	false:	{
-			ReplyToCommand(client, "[Updater] Checking for updates. (Be aware plugin indexes changes after the plugin is reloaded, errors are very possible.)");
+		case true: ReplyToCommand(client, "[Updater] Updates can only be checked once per hour. %.1f minutes remaining.", (fNextUpdate - GetTickedTime()) / 60.0);
+		case false:	{
+			ReplyToCommand(client, "[Updater] Checking for updates.");
 			TriggerTimer(_hUpdateTimer, true);
 		}
 	}
 
+	return Plugin_Handled;
+}
+
+Action Command_ForceCheck(int client, int args)	{
+	ReplyToCommand(client, "[Updater] Force-checking for updates.");
+	CreateTimer(0.1, Timer_CheckUpdates);
+	
 	return Plugin_Handled;
 }
 
@@ -164,27 +180,24 @@ Action Command_Status(int client, int args)	{
 	return Plugin_Handled;
 }
 
-void OnVersionChanged(ConVar cvar, const char[] oldValue, const char[] newValue)	{
-	if(!StrEqual(newValue, PLUGIN_VERSION))
+void OnVersionChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue)	{
+	if(!StrEqual(newvalue, PLUGIN_VERSION))
 		cvar.SetString(PLUGIN_VERSION);
 }
 
-void OnSettingsChanged(ConVar cvar, const char[] oldValue, const char[] newValue)	{
+void OnSettingsChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue)	{
 	switch(cvar.IntValue)	{
-		// Notify only.
-		case	1:	{
+		case 1:	{ // Notify only.
 			g_bGetDownload = false;
 			g_bGetSource = false;
 		}
 		
-		// Download updates.
-		case	2:	{
+		case 2:	{ // Download updates.
 			g_bGetDownload = true;
 			g_bGetSource = false;
 		}
 		
-		// Download with source code.
-		case	3:	{
+		case 3:	{ // Download with source code.
 			g_bGetDownload = true;
 			g_bGetSource = true;
 		}
@@ -203,7 +216,7 @@ public void Updater_OnPluginUpdated()	{
 #endif
 
 void Updater_Check(int index)	{
-	if(Fwd_OnPluginChecking(IndexToPlugin(index)) == Plugin_Continue)	{
+	if (Fwd_OnPluginChecking(IndexToPlugin(index)) == Plugin_Continue)	{
 		char url[MAX_URL_LENGTH];
 		Updater_GetURL(index, url, sizeof(url));
 		Updater_SetStatus(index, Status_Checking);
@@ -222,7 +235,7 @@ void Updater_FreeMemory()	{
 	for(int i = 0; i < maxPlugins; i++)	{
 		index = PluginToIndex(g_hRemoveQueue.Get(i));
 		
-		if(index != -1)
+		if (index != -1)
 			Updater_RemovePlugin(index);
 	}
 	
