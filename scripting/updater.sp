@@ -34,7 +34,7 @@
  *	Version 1.3.3:
  *
  *	Removed ReloadPlugin() from updater.inc.
- *	Added Updater_ReloadPlugin() native to replade 'ReloadPlugin()'
+ *	Added Updater_ReloadPlugin() native to replace 'ReloadPlugin()'
  */
 
 public Plugin myinfo = {

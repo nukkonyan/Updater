@@ -4,11 +4,12 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.3.2"
+			"Latest"	"1.3.3"
 		}
 		
 		"Notes"	"More info @ https://github.com/Teamkiller324/Updater"
-		"Notes"	"Redone the code fixing issues."
+		"Notes"	"Removed ReloadPlugin() from updater.inc."
+		"Notes"	"Added Updater_ReloadPlugin() native to replace 'ReloadPlugin()'"
 	}
 	
 	"Files"
