@@ -65,16 +65,10 @@ forward void Updater_OnPluginUpdated();
 /**
  * @brief Reloads a plugin.
  *
- * @param plugin	Plugin Handle (INVALID_HANDLE uses the calling plugin).
+ * @param plugin	Plugin Handle (null uses the calling plugin).
  * @noreturn
  */
-stock void ReloadPlugin(Handle plugin=null)
-{
-	char filename[64];
-	GetPluginFilename(plugin, filename, sizeof(filename));
-	ServerCommand("sm plugins reload %s", filename);
-}
-
+native void Updater_ReloadPlugin(Handle plugin=null);
 
 public SharedPlugin __pl_updater = 
 {

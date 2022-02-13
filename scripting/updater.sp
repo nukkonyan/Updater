@@ -7,7 +7,7 @@
 
 /* Plugin Info */
 #define PLUGIN_NAME 		"Updater"
-#define PLUGIN_VERSION 		"1.3.2"
+#define PLUGIN_VERSION 		"1.3.3"
 
 /*	Version 1.3.0:
  *
@@ -28,6 +28,13 @@
 /*	Version 1.3.2:
  *
  *	Redone the code.
+ */
+
+/*
+ *	Version 1.3.3:
+ *
+ *	Removed ReloadPlugin() from updater.inc.
+ *	Added Updater_ReloadPlugin() native to replade 'ReloadPlugin()'
  */
 
 public Plugin myinfo = {

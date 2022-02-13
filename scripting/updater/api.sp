@@ -10,6 +10,7 @@ void API_Init()	{
 	CreateNative("Updater_AddPlugin", Native_AddPlugin);
 	CreateNative("Updater_RemovePlugin", Native_RemovePlugin);
 	CreateNative("Updater_ForceUpdate", Native_ForceUpdate);
+	CreateNative("Updater_ReloadPlugin", Native_ReloadPlugin);
 	
 	fwd_OnPluginChecking = new PrivateForward(ET_Event);
 	fwd_OnPluginDownloading = new PrivateForward(ET_Event);
@@ -30,7 +31,7 @@ any Native_RemovePlugin(Handle plugin, int params)	{
 		Updater_QueueRemovePlugin(plugin);
 }
 
-// native bool:Updater_ForceUpdate();
+// native bool Updater_ForceUpdate();
 any Native_ForceUpdate(Handle plugin, int numParams)	{
 	int index = PluginToIndex(plugin);
 	
@@ -42,6 +43,15 @@ any Native_ForceUpdate(Handle plugin, int numParams)	{
 	}
 	
 	return 0;
+}
+
+// native void Updater_ReloadPlugin();
+any Native_ReloadPlugin(Handle plugin, int params)	{
+	Handle hPlugin = GetNativeCell(1);
+	
+	char filename[64];
+	GetPluginFilename(hPlugin == null ? plugin : hPlugin, filename, sizeof(filename));
+	ServerCommand("sm plugins reload %s", filename);
 }
 
 // forward Action Updater_OnPluginChecking();
