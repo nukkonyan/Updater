@@ -149,7 +149,7 @@ stock void UnloadPlugin(Handle plugin=null)	{
 }
 
 stock void DisablePlugin(Handle plugin=null)	{
-	char filename[64] path_disabled[PLATFORM_MAX_PATH], path_plugin[PLATFORM_MAX_PATH];
+	char filename[64], path_disabled[PLATFORM_MAX_PATH], path_plugin[PLATFORM_MAX_PATH];
 	
 	GetPluginFilename(plugin, filename, sizeof(filename));
 	BuildPath(Path_SM, path_disabled, sizeof(path_disabled), "plugins/disabled/%s", filename);
