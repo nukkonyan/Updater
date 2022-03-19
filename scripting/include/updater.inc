@@ -87,5 +87,6 @@ public void __pl_updater_SetNTVOptional()
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
 	MarkNativeAsOptional("Updater_ForceUpdate");
+	MarkNativeAsOptional("Updater_ReloadPlugin");
 }
 #endif

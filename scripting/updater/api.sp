@@ -23,12 +23,16 @@ any Native_AddPlugin(Handle plugin, int params)	{
 	char url[MAX_URL_LENGTH];
 	GetNativeString(1, url, sizeof(url));
 	Updater_AddPlugin(plugin, url);
+	
+	return 0;
 }
 
 // native Updater_RemovePlugin();
 any Native_RemovePlugin(Handle plugin, int params)	{
 	if(PluginToIndex(plugin) != -1)
 		Updater_QueueRemovePlugin(plugin);
+	
+	return 0;
 }
 
 // native bool Updater_ForceUpdate();
@@ -52,6 +56,8 @@ any Native_ReloadPlugin(Handle plugin, int params)	{
 	char filename[64];
 	GetPluginFilename(hPlugin == null ? plugin : hPlugin, filename, sizeof(filename));
 	ServerCommand("sm plugins reload %s", filename);
+	
+	return 0;
 }
 
 // forward Action Updater_OnPluginChecking();
