@@ -4,12 +4,12 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.3.3"
+			"Latest"	"1.3.4"
 		}
 		
 		"Notes"	"More info @ https://github.com/Teamkiller324/Updater"
-		"Notes"	"Removed ReloadPlugin() from updater.inc."
-		"Notes"	"Added Updater_ReloadPlugin() native to replace 'ReloadPlugin()'"
+		"Notes"	"Added Updater_OnLoaded() forward."
+		"Notes"	"Use this when adding plugin to update-list instead of OnPluginStart() as otherwise it would instantly crash the caller plugin due to trying to access then invalid handle that isn't created yet."
 	}
 	
 	"Files"
