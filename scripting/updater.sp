@@ -6,39 +6,36 @@
 #include <SteamWorks>
 
 /* Plugin Info */
-#define PLUGIN_NAME 		"Updater"
-#define PLUGIN_VERSION 		"1.3.3"
-
-/*	Version 1.3.0:
- *
- *	Updated to new syntax throughout.
- *	Removed SteamTools Support due to it being superceeded by SteamWorks and broken.
- *	Removed cURL Support due to it being very old and not supported.
- *	Added Force-Check Command.
- *	Updated the command descriptions.
- *	Minor code 'cleanup'.
- *	Added support for 'Include' files.
- */
- 
-/*	Version 1.3.1:
- *
- *	Removed Socket support since it has no HTTPS Support (Thanks Dr. McKay).
- */
-
-/*	Version 1.3.2:
- *
- *	Redone the code.
- */
+#define PLUGIN_VERSION "1.3.4"
 
 /*
- *	Version 1.3.3:
+ *	Changelogs:
  *
- *	Removed ReloadPlugin() from updater.inc.
- *	Added Updater_ReloadPlugin() native to replace 'ReloadPlugin()'
+ *	Version 1.3.0
+ *		> Updated to new syntax throughout.
+ *		> Removed SteamTools Support due to it being superceeded by SteamWorks and broken.
+ *		> Removed cURL Support due to it being very old and not supported.
+ *		> Added Force-Check Command.
+ *		> Updated the command descriptions.
+ *		> Minor code 'cleanup'.
+ *		> Added support for 'Include' files.
+ *
+ *	Version 1.3.1
+ *		> Removed Socket support since it has no HTTPS Support (Thanks Dr. McKay).
+ *
+ *	Version 1.3.2
+ *		> Redone the code.
+ *
+ *	Version 1.3.3
+ *		> Removed ReloadPlugin() from updater.inc.
+ *		> Added Updater_ReloadPlugin() native to replace 'ReloadPlugin()'
+ *
+ *	Version 1.3.4
+ *		> Added Updater_OnLoaded() forward
  */
 
 public Plugin myinfo = {
-	name		= PLUGIN_NAME,
+	name		= "Updater",
 	author		= "GoD-Tony, Tk /id/Teamkiller324",
 	description	= "Automatically updates SourceMod plugins and files",
 	version		= PLUGIN_VERSION,
@@ -64,6 +61,7 @@ enum UpdateStatus {
 
 bool g_bGetDownload, g_bGetSource;
 
+GlobalForward g_OnLoaded = null;
 ArrayList g_hPluginPacks = null;
 ArrayList g_hDownloadQueue = null;
 ArrayList g_hRemoveQueue = null;
@@ -92,13 +90,15 @@ public void OnPluginStart()	{
 	
 	LoadTranslations("common.phrases");
 	
+	g_OnLoaded = new GlobalForward("Updater_OnLoaded", ET_Event);
+	
 	// Convars.
 	ConVar hCvar = null;
 	
-	(hCvar = CreateConVar("sm_updater_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_DONTRECORD)).AddChangeHook(OnVersionChanged);
+	(hCvar = CreateConVar("sm_updater_version", PLUGIN_VERSION, "Updater - version", FCVAR_NOTIFY|FCVAR_DONTRECORD)).AddChangeHook(OnVersionChanged);
 	OnVersionChanged(hCvar, "", "");
 	
-	(hCvar = CreateConVar("sm_updater", "2", "Determines update functionality. (1 = Notify, 2 = Download, 3 = Include source code)", _, true, 1.0, true, 3.0)).AddChangeHook(OnSettingsChanged);
+	(hCvar = CreateConVar("sm_updater", "2", "Updater - Determines update functionality. (1 = Notify, 2 = Download, 3 = Include source code)", _, true, 1.0, true, 3.0)).AddChangeHook(OnSettingsChanged);
 	OnSettingsChanged(hCvar, "", "");
 	
 	// Commands.
@@ -126,6 +126,9 @@ public void OnPluginStart()	{
 public void OnAllPluginsLoaded()	{
 	// Check for updates on startup.
 	TriggerTimer(_hUpdateTimer, true);
+	
+	Call_StartForward(g_OnLoaded);
+	Call_Finish();
 }
 
 Action Timer_CheckUpdates(Handle timer)	{
@@ -139,8 +142,6 @@ Action Timer_CheckUpdates(Handle timer)	{
 	}
 	
 	_fLastUpdate = GetTickedTime();
-	
-	return Plugin_Continue;
 }
 
 Action Command_Check(int client, int args)	{
@@ -153,15 +154,11 @@ Action Command_Check(int client, int args)	{
 			TriggerTimer(_hUpdateTimer, true);
 		}
 	}
-
-	return Plugin_Handled;
 }
 
 Action Command_ForceCheck(int client, int args)	{
 	ReplyToCommand(client, "[Updater] Force-checking for updates.");
 	CreateTimer(0.1, Timer_CheckUpdates);
-	
-	return Plugin_Handled;
 }
 
 Action Command_Status(int client, int args)	{
@@ -183,14 +180,9 @@ Action Command_Status(int client, int args)	{
 	
 	ReplyToCommand(client, "Last update check was %.1f minutes ago.", (GetTickedTime() - _fLastUpdate) / 60.0);
 	ReplyToCommand(client, "[Updater] --- Status End ---");
-
-	return Plugin_Handled;
 }
 
-void OnVersionChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue)	{
-	if(!StrEqual(newvalue, PLUGIN_VERSION))
-		cvar.SetString(PLUGIN_VERSION);
-}
+void OnVersionChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue) { if(!StrEqual(newvalue, PLUGIN_VERSION)) cvar.SetString(PLUGIN_VERSION); }
 
 void OnSettingsChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue)	{
 	switch(cvar.IntValue)	{
@@ -212,7 +204,7 @@ void OnSettingsChanged(ConVar cvar, const char[] oldvalue, const char[] newvalue
 }
 
 #if !defined DEBUG
-public void Updater_OnPluginUpdated()	{
+public void Updater_OnPluginUpdated() {
 	Updater_Log("Reloading Updater plugin... updates will resume automatically.");
 	
 	// Reload this plugin.
@@ -222,7 +214,7 @@ public void Updater_OnPluginUpdated()	{
 }
 #endif
 
-void Updater_Check(int index)	{
+void Updater_Check(int index) {
 	if (Fwd_OnPluginChecking(IndexToPlugin(index)) == Plugin_Continue)	{
 		char url[MAX_URL_LENGTH];
 		Updater_GetURL(index, url, sizeof(url));

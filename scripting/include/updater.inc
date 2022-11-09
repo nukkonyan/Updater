@@ -4,74 +4,84 @@
 #define _updater_included
 
 /**
- * Adds your plugin to the updater. The URL will be updated if 
- * your plugin was previously added.
+ *	Adds your plugin to the updater. The URL will be updated if 
+ *	your plugin was previously added.
  *
- * @param url		URL to your plugin's update file.
- * @noreturn
+ *	@param	url	URL to your plugin's update file.
+ *
+ *	@noreturn
  */
 native void Updater_AddPlugin(const char[] url);
 
 /**
- * Removes your plugin from the updater. This does not need to 
- * be called during OnPluginEnd.
+ *	Removes your plugin from the updater. This does not need to 
+ *	be called during OnPluginEnd.
  *
- * @noreturn
+ *	@noreturn
  */
 native void Updater_RemovePlugin();
 
 /**
- * Forces your plugin to be checked for updates. The behaviour 
- * of the update is dependant on the server's configuration.
+ *	Forces your plugin to be checked for updates. The behaviour 
+ *	of the update is dependant on the server's configuration.
  *
- * @return		True if an update was triggered. False otherwise.
- * @error		Plugin not found in updater.
+ *	@return	True if an update was triggered. False otherwise.
+ *
+ *	@error	Plugin not found in updater.
  */
 native bool Updater_ForceUpdate();
 
 /**
+ *	@brief Reloads a plugin.
+ *
+ *	@param	plugin	Plugin Handle (null uses the calling plugin).
+ *
+ *	@noreturn
+ */
+native void Updater_ReloadPlugin(Handle plugin=null);
+
+/**
  * Called when your plugin is about to be checked for updates.
  *
- * @return		Plugin_Handled to prevent checking, Plugin_Continue to allow it.
+ *	@return	Plugin_Handled to prevent checking, Plugin_Continue to allow it.
  */
 forward Action Updater_OnPluginChecking();
 
 /**
  * Called when your plugin is about to begin downloading an available update.
  *
- * @return		Plugin_Handled to prevent downloading, Plugin_Continue to allow it.
+ *	@return	Plugin_Handled to prevent downloading, Plugin_Continue to allow it.
  */
 forward Action Updater_OnPluginDownloading();
 
 /**
- * Called when your plugin's update files have been fully downloaded 
- * and are about to write to their proper location. This should be used 
- * to free read-only resources that require write access for your update.
+ *	Called when your plugin's update files have been fully downloaded 
+ *	and are about to write to their proper location. This should be used 
+ *	to free read-only resources that require write access for your update.
  *
- * @note OnPluginUpdated will be called later during the same frame.
+ *	@note OnPluginUpdated will be called later during the same frame.
  *
- * @noreturn
+ *	@noreturn
  */
 forward void Updater_OnPluginUpdating();
 
 /**
- * Called when your plugin's update has been completed. It is safe
- * to reload your plugin at this time.
+ *	Called when your plugin's update has been completed. It is safe
+ *	to reload your plugin at this time.
  *
- * @noreturn
+ *	@noreturn
  */
 forward void Updater_OnPluginUpdated();
 
 /**
- * @brief Reloads a plugin.
- *
- * @param plugin	Plugin Handle (null uses the calling plugin).
- * @noreturn
+ *	Called when updater has fully loaded.
+ *	Use this when adding plugin to update-list instead of OnPluginStart()
+ *	as otherwise it would instantly crash the caller plugin
+ *	due to trying to access then invalid handle that isn't created yet.
  */
-native void Updater_ReloadPlugin(Handle plugin=null);
+forward void Updater_OnLoaded();
 
-public SharedPlugin __pl_updater = 
-{
+public SharedPlugin __pl_updater = {
 	name = "updater",
 	file = "updater.smx",
 #if defined REQUIRE_PLUGIN
@@ -82,8 +92,7 @@ public SharedPlugin __pl_updater =
 };
 
 #if !defined REQUIRE_PLUGIN
-public void __pl_updater_SetNTVOptional()
-{
+public void __pl_updater_SetNTVOptional() {
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
 	MarkNativeAsOptional("Updater_ForceUpdate");
